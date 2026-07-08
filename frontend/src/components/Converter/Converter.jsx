@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { DollarSign, Percent, RefreshCw, Calculator } from "lucide-react";
 
 function Converter() {
@@ -8,19 +9,38 @@ function Converter() {
     const [cpc, setCpc] = useState(0.15); // Cost Per Click
     const [ctr, setCtr] = useState(2.5);  // Click-Through Rate (%)
 
-    // Mock exchange rates relative to USD
-    const exchangeRates = {
+    // Live exchange rates state with fallbacks
+    const [exchangeRates, setExchangeRates] = useState({
         USD: 1,
-        INR: 83.5,
-        EUR: 0.92,
-        GBP: 0.79,
-        CAD: 1.36
-    };
+        INR: 95.05, // Updated fallback to match current 2026 rates
+        EUR: 0.88,
+        GBP: 0.75,
+        CAD: 1.42
+    });
+
+    useEffect(() => {
+        const fetchRates = async () => {
+            try {
+                // Fetch keyless public exchange rates relative to USD base
+                const res = await axios.get("https://open.er-api.com/v6/latest/USD");
+                if (res.data && res.data.rates) {
+                    setExchangeRates(res.data.rates);
+                }
+            } catch (err) {
+                console.error("Failed to fetch live exchange rates, using fallbacks:", err);
+            }
+        };
+        fetchRates();
+    }, []);
 
     // Calculate conversions
     const convertBudget = () => {
-        const budgetInUSD = budget / exchangeRates[currency];
-        const convertedBudget = budgetInUSD * exchangeRates[targetCurrency];
+        // Fallback checks to prevent division by zero or undefined currency access
+        const rateFrom = exchangeRates[currency] || 1;
+        const rateTo = exchangeRates[targetCurrency] || 1;
+
+        const budgetInUSD = budget / rateFrom;
+        const convertedBudget = budgetInUSD * rateTo;
         
         // Calculate campaign yields
         const totalClicks = Math.round(budgetInUSD / cpc);
@@ -157,7 +177,7 @@ function Converter() {
                 </div>
 
                 <div className="bg-indigo-500/10 border border-indigo-500/25 p-4 rounded-xl text-center text-xs text-indigo-300 font-semibold mt-6">
-                    Rates are mock values indexed to USD. Yield metrics are estimations based on campaign CTR inputs.
+                    Rates are loaded dynamically from ExchangeRate-API. Yield metrics are estimations based on campaign CTR inputs.
                 </div>
             </div>
         </div>
