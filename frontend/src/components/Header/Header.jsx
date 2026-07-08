@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { LogOut, User } from "lucide-react";
 import axios from "axios";
 
@@ -16,6 +16,10 @@ function Header() {
                 return "Kanban Production Board";
             case "/converter":
                 return "Ad-Spend Currency Converter";
+            case "/videos":
+                return "Videos Gallery";
+            case "/community":
+                return "Community Updates Feed";
             default:
                 return "Studio Panel";
         }
@@ -42,12 +46,15 @@ function Header() {
 
             {/* Profile actions */}
             <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2.5 bg-[#1c1924] border border-[#2c2838] px-3.5 py-1.5 rounded-full">
+                <Link
+                    to="/videos"
+                    className="flex items-center gap-2.5 bg-[#1c1924] border border-[#2c2838] hover:border-indigo-500/50 px-3.5 py-1.5 rounded-full transition-colors cursor-pointer"
+                >
                     <User className="w-4 h-4 text-indigo-400" />
                     <span className="text-xs font-bold text-gray-200">
                         Creator Channel
                     </span>
-                </div>
+                </Link>
 
                 {/* Logout Button */}
                 <button

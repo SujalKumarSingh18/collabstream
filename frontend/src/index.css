@@ -22,4 +22,48 @@ body {
   min-height: 100vh;
   background-color: #0c0a0f;
   color: #f3f4f6;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Light Theme overrides */
+.light-theme, .light-theme body {
+  background-color: #f5f6f8 !important;
+  color: #2d3748 !important;
+}
+
+.light-theme aside,
+.light-theme header,
+.light-theme .bg-\[\#14121a\] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme .bg-\[\#1c1924\] {
+  background-color: #edf2f7 !important;
+  border-color: #e2e8f0 !important;
+  color: #2d3748 !important;
+}
+
+.light-theme input,
+.light-theme textarea,
+.light-theme select {
+  background-color: #ffffff !important;
+  border-color: #cbd5e0 !important;
+  color: #2d3748 !important;
+}
+
+.light-theme h1,
+.light-theme h2,
+.light-theme h3,
+.light-theme .text-white {
+  color: #1a202c !important;
+}
+
+.light-theme .text-gray-400 {
+  color: #718096 !important;
+}
+
+.light-theme border-\[\#201d2a\],
+.light-theme border-\[\#2c2838\] {
+  border-color: #e2e8f0 !important;
 }
