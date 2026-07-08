@@ -12,6 +12,11 @@ import VideoPlayer from './components/Videos/VideoPlayer.jsx'
 import Community from './components/Community/Community.jsx'
 import Login from './components/Login/Login.jsx'
 import Register from './components/Register/Register.jsx'
+import axios from 'axios';
+
+// Set Axios defaults for production serverless deployments
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
+axios.defaults.withCredentials = true;
 
 const router = createBrowserRouter(
   createRoutesFromElements(

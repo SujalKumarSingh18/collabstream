@@ -14,7 +14,7 @@ const connectDB = async () => {
     try {
         // Retrieve database URI and database name, and establish connection
         const connectionInstance = await mongoose.connect(
-            `${process.env.MONGODB_URI}/${DB_NAME}`
+            `${process.env.MONGODB_URI}`
         );
         
         // Log host details to verify connection environment (dev, production, etc.)
