@@ -14,7 +14,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
  */
 const createTask = asyncHandler(async (req, res) => {
     // Your code here...
-    const {title, description, status, priority, assignedTo, videoRef, deadline} = req.body;
+    const {title, description, status, priority, videoRef, deadline} = req.body;
     if (!title){
         throw new ApiError(400, "Title is required");
     }
@@ -23,7 +23,7 @@ const createTask = asyncHandler(async (req, res) => {
         description,
         status,
         priority,
-        assignedTo,
+        assignedTo: req.user._id, // Set explicitly to logged-in user
         videoRef,
         deadline,
     });
@@ -48,7 +48,9 @@ const createTask = asyncHandler(async (req, res) => {
 const getTasks = asyncHandler(async (req, res) => {
     // Your code here...
     const {status, priority} = req.query;
-    const query = {};
+    
+    // Security: Scope query to the logged-in user's tasks
+    const query = { assignedTo: req.user._id };
     if(status) query.status = status;
     if(priority) query.priority = priority;
 
