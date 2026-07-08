@@ -25,45 +25,70 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Light Theme overrides */
-.light-theme, .light-theme body {
-  background-color: #f5f6f8 !important;
-  color: #2d3748 !important;
+/* ==========================================================================
+   Light Theme CSS Attribute Overrides
+   Uses substring class matching to override hardcoded dark theme hex values.
+   ========================================================================== */
+
+/* 1. Base body and container backgrounds */
+.light-theme, 
+.light-theme body,
+.light-theme [class*="bg-[#0c0a0f]"] {
+  background-color: #f3f4f6 !important;
+  color: #1f2937 !important;
 }
 
+/* 2. Sidebars, headers, and dashboard widgets panels */
 .light-theme aside,
 .light-theme header,
-.light-theme .bg-\[\#14121a\] {
+.light-theme [class*="bg-[#14121a]"] {
   background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
+  border-color: #e5e7eb !important;
+  color: #1f2937 !important;
 }
 
-.light-theme .bg-\[\#1c1924\] {
-  background-color: #edf2f7 !important;
-  border-color: #e2e8f0 !important;
-  color: #2d3748 !important;
+/* 3. Cards, Kanban decks, and smaller sections */
+.light-theme [class*="bg-[#1c1924]"] {
+  background-color: #f9fafb !important;
+  border-color: #e5e7eb !important;
+  color: #1f2937 !important;
 }
 
+/* 4. Inputs, selects, and textareas */
 .light-theme input,
 .light-theme textarea,
 .light-theme select {
   background-color: #ffffff !important;
-  border-color: #cbd5e0 !important;
-  color: #2d3748 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
 }
 
+/* 5. Custom dark border overrides */
+.light-theme [class*="border-[#201d2a]"],
+.light-theme [class*="border-[#2c2838]"] {
+  border-color: #e5e7eb !important;
+}
+
+/* 6. Text color overrides */
 .light-theme h1,
 .light-theme h2,
 .light-theme h3,
-.light-theme .text-white {
-  color: #1a202c !important;
+.light-theme h4,
+.light-theme p,
+.light-theme span,
+.light-theme label,
+.light-theme [class*="text-white"],
+.light-theme [class*="text-gray-100"],
+.light-theme [class*="text-gray-200"] {
+  color: #0f172a !important;
 }
 
-.light-theme .text-gray-400 {
-  color: #718096 !important;
+.light-theme [class*="text-gray-400"],
+.light-theme [class*="text-gray-500"] {
+  color: #4b5563 !important;
 }
 
-.light-theme border-\[\#201d2a\],
-.light-theme border-\[\#2c2838\] {
-  border-color: #e2e8f0 !important;
+/* Active navigation text highlights */
+.light-theme .text-white[class*="border-l-4"] {
+  color: #4f46e5 !important;
 }
