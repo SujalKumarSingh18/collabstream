@@ -1,6 +1,6 @@
 import React from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import { LogOut, User } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import axios from "axios";
 
 function Header() {
@@ -46,13 +46,6 @@ function Header() {
 
             {/* Profile actions */}
             <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2.5 bg-[#1c1924] border border-[#2c2838] px-3.5 py-1.5 rounded-full">
-                    <User className="w-4 h-4 text-indigo-400" />
-                    <span className="text-xs font-bold text-gray-200">
-                        Creator Channel
-                    </span>
-                </div>
-
                 {/* Logout Button */}
                 <button
                     onClick={handleLogout}
