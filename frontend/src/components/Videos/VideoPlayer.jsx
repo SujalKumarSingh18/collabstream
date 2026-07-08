@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
-import { Heart, UserPlus, UserCheck, MessageSquare, Trash2, Calendar, Eye } from "lucide-react";
+import { Heart, UserPlus, UserCheck, User, MessageSquare, Trash2, Calendar, Eye } from "lucide-react";
 
 function VideoPlayer() {
     const { videoId } = useParams();
@@ -218,26 +218,33 @@ function VideoPlayer() {
                     </div>
 
                     {/* Subscription Toggle */}
-                    <button
-                        onClick={handleSubToggle}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer ${
-                            isSubscribed
-                                ? "bg-[#1c1924] border border-[#2c2838] text-indigo-400"
-                                : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg"
-                        }`}
-                    >
-                        {isSubscribed ? (
-                            <>
-                                <UserCheck className="w-4 h-4" />
-                                Subscribed
-                            </>
-                        ) : (
-                            <>
-                                <UserPlus className="w-4 h-4" />
-                                Subscribe
-                            </>
-                        )}
-                    </button>
+                    {currentUser?._id === video.owner._id ? (
+                        <div className="bg-[#1c1924] border border-[#2c2838] px-4 py-2.5 rounded-xl text-xs font-bold text-gray-500 flex items-center gap-2 select-none">
+                            <User className="w-4 h-4" />
+                            Your Channel
+                        </div>
+                    ) : (
+                        <button
+                            onClick={handleSubToggle}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer ${
+                                isSubscribed
+                                    ? "bg-[#1c1924] border border-[#2c2838] text-indigo-400"
+                                    : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg"
+                            }`}
+                        >
+                            {isSubscribed ? (
+                                <>
+                                    <UserCheck className="w-4 h-4" />
+                                    Subscribed
+                                </>
+                            ) : (
+                                <>
+                                    <UserPlus className="w-4 h-4" />
+                                    Subscribe
+                                </>
+                            )}
+                        </button>
+                    )}
                 </div>
             </div>
 
