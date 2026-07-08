@@ -25,16 +25,21 @@ const router = Router();
  */
 
 // Route: Register User
-// --- HINT: Use upload.fields([{ name: "avatar", maxCount: 1 }, { name: "coverImage", maxCount: 1 }]) ---
-// Your route here...
+router.route("/register").post(
+    upload.fields([
+        { name: "avatar", maxCount: 1 },
+        { name: "coverImage", maxCount: 1 }
+    ]),
+    registerUser
+);
 
 // Route: Login User
-// Your route here...
+router.route("/login").post(loginUser);
 
 // Route: Logout User (Secured)
-// Your route here...
+router.route("/logout").post(verifyJWT, logoutUser);
 
 // Route: Refresh Access Token
-// Your route here...
+router.route("/refresh-token").post(refreshAccessToken);
 
 export default router;
