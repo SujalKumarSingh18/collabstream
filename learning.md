@@ -1,6 +1,6 @@
-# CollabStream Backend & Frontend Engineering Log 🚀
+# CollabStream Full-Stack Engineering & Learning Log 🚀
 
-Welcome to your comprehensive full-stack study guide for **CollabStream**. This log serves as your detailed reference for architectural choices, coding style, security mitigation, database schema designs, and frontend systems design. Use this to prepare for full-stack engineering interviews!
+Welcome to your comprehensive study guide for **CollabStream**. This log serves as your detailed reference for architectural choices, coding style, security mitigation, database schema designs, and full-stack systems design. Use this to prepare for engineering interviews!
 
 ---
 
@@ -13,6 +13,7 @@ Welcome to your comprehensive full-stack study guide for **CollabStream**. This 
 6. [Phase 6: Kanban Tasks & Dashboard Analytics](#phase-6-kanban-tasks--dashboard-analytics)
 7. [Phase 7: Content Interactions Management](#phase-7-content-interactions-management)
 8. [Phase 8: Frontend System Design & Routing Layouts](#phase-8-frontend-system-design--routing-layouts)
+9. [Phase 9: Key Frontend Interview Concepts & Implementations](#phase-9-key-frontend-interview-concepts--implementations)
 
 ---
 
@@ -142,8 +143,13 @@ try {
 
 ### 1. Password Hashing & The `isModified` Gatekeeper
 In Mongoose, we hash passwords using `bcrypt` in a pre-save hook.
-* **Critical Requirement:** We must check `this.isModified("password")`.
-* **The "Why":** The `pre("save")` hook triggers *every single time* the user document is saved. If a user updates their profile picture, bio, or ad spend budget, and we do not check if the password field was modified, the hook will hash the already-hashed password again! This locks the user out of their account permanently since the original password will no longer match the twice-hashed hash.
+* **Mongoose Async Pre-Hook Rule:** When writing an `async` pre-save hook, do NOT pass `next` or call `next()`. Mongoose automatically determines the end of execution once your async promise resolves. Calling `next()` in an async hook can trigger duplicate triggers or `TypeError: next is not a function` depending on version dependencies.
+```javascript
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+    this.password = await bcrypt.hash(this.password, 10);
+});
+```
 
 ### 2. Access Tokens vs. Refresh Tokens (JWT)
 We use a two-token system for secure, stateless authentication:
@@ -162,13 +168,6 @@ In the Video pipeline model, we attach the `mongooseAggregatePaginate` plugin.
 * **What is Pagination?** When a database contains thousands or millions of records, returning all of them in a single query is extremely slow, hogs server memory, and freezes client browsers. Pagination is the technique of breaking down large datasets into small, manageable chunks (called "pages") (e.g., fetching 10 videos per page).
 * **The "Why":** Creator studio dashboards require complex aggregation operations (such as joining video data, counting views per creator, calculating average duration, sorting, and matching keywords). Standard `find().populate()` is inefficient and lacks advanced query manipulation. The `mongoose-aggregate-paginate-v2` plugin allows us to paginate directly inside Mongoose aggregation pipelines, ensuring fast page load speeds.
 
-### 4. Creator Studio Statistical Junction Models
-To enable creator analytics and studio statistics (views, engagement rates, subscriber growth), we designed specific database models:
-* **Subscription Model (`subscriber` ➔ `channel`)**: Tracks the connection between users. By indexing the `channel` field, we can perform highly efficient counts (`countDocuments`) of how many subscribers a channel has, or aggregate subscriber retention rates over time.
-* **Comment Model**: Allows users to post feedback on videos. Paginated using the aggregate pagination plugin to load comments progressively below videos.
-* **Post Model**: Allows creators to communicate with their audience directly (tweets/community text updates).
-* **Like Model**: A polymorphic link mapping a user's like reaction to a specific target (`video`, `comment`, or `post`), storing optional ObjectIds to track engagement statistics dynamically.
-
 ---
 
 ## Phase 4: Middleware Pipeline Architecture
@@ -180,7 +179,7 @@ Secures routes by inspecting headers or cookies, decrypting user IDs, fetching t
 Intercepts incoming multipart/form-data requests, parses files, and writes them temporarily to disk (`./public/temp`) before they are handed off to controllers to be sent to Cloudinary.
 
 ### 3. Centralized Error Handling Middleware (`errorHandler`)
-Acts as the fallback terminal node in the Express routing tree. Any error passed to `next(err)` gets handled here, converted into an instance of `ApiError` if it isn't one already, and sent back as a uniform JSON payload with appropriate HTTP status codes (e.g., 400, 401, 403, 404, 500).
+Central endpoint in Express. Any error passed to `next(err)` gets handled here, converted into an instance of `ApiError` if it isn't one already, and sent back as a uniform JSON payload.
 
 ---
 
@@ -194,33 +193,12 @@ The registration process follows a multi-step sequence:
 4. **Creation**: Save the user in MongoDB. The password is automatically hashed by our model pre-save hook.
 5. **Projection**: Query the created user back, projecting out security credentials (`-password -refreshToken`) before returning the resource.
 
-### 2. Secure Cookie-based Login Authentication
-Authentication uses secure, HTTP-only cookies to deliver JWTs:
-```javascript
-const cookieOptions = {
-    httpOnly: true, // Prevents Javascript (XSS) from reading cookies
-    secure: true    // Enforces HTTPS-only transmission
-};
-res.cookie("accessToken", accessToken, cookieOptions);
-res.cookie("refreshToken", refreshToken, cookieOptions);
-```
-* **Cookie-based login** is highly secure because it completely prevents client-side scripts (e.g., malicious NPM packages or browser extensions) from reading the access token, neutralizing token theft vulnerabilities.
-
-### 3. Logout & Refresh Tokens Clearance
-* **Logout**: We remove the `refreshToken` from the user's document in MongoDB (using `$unset`) and clear the cookie headers from the client using `res.clearCookie()`.
-* **Token Refresh**: When the access token expires, the client's request fails with `401 Unauthorized`. The frontend makes a request to `/refresh-token` sending the refresh token. We verify the refresh token signature, match it against the database to prevent reuse/leakage, and issue a fresh token pair.
-
 ---
 
 ## Phase 6: Kanban Tasks & Creator Dashboard Analytics
 
 ### 1. Scoping Queries to the Logged-In User
-To prevent creators from seeing or updating other creators' task cards, all routes query and filter records matching `assignedTo: req.user._id` (set securely in middleware). For updates and deletes, the controller explicitly verifies:
-```javascript
-if (task.assignedTo.toString() !== req.user._id.toString()) {
-    throw new ApiError(403, "Unauthorized modification request");
-}
-```
+To prevent creators from seeing or updating other creators' task cards, all routes query and filter records matching `assignedTo: req.user._id` (set securely in middleware).
 
 ### 2. Performing Performant Multi-Collection Dashboard Statistics
 Instead of pulling entire tables of likes or video views into Node memory and looping over them, we run Mongoose aggregation pipelines:
@@ -246,13 +224,7 @@ This compound index prevents duplicate subscriptions and speeds up queries for s
 ## Phase 8: Frontend System Design & Routing Layouts
 
 ### 1. Vite & Tailwind v4 Integration
-The client is scaffolded as a single-page app using **Vite**. Styling uses **Tailwind CSS v4** via the `@tailwindcss/vite` compiler plugin, removing the need for a legacy `tailwind.config.js` file. Custom color theme variables are configured directly inside `index.css`:
-```css
-@import "tailwindcss";
-:root {
-  background-color: #0c0a0f; /* custom dark background */
-}
-```
+The client is scaffolded as a single-page app using **Vite**. Styling uses **Tailwind CSS v4** via the `@tailwindcss/vite` compiler plugin, removing the need for a legacy `tailwind.config.js` file.
 
 ### 2. Local Proxy Routing Configuration
 To bypass Cross-Origin Resource Sharing (CORS) roadblocks, we configure Vite's built-in dev server to proxy request flows:
@@ -268,10 +240,35 @@ server: {
 }
 ```
 
-### 3. Client-Side Routing and Layout Structures
-Using `react-router-dom`'s `createBrowserRouter`, we configure a shared wrapper layout:
-- `Layout.jsx` renders a fixed left-side Navigation Sidebar, a top header, and uses `<Outlet />` to mount child routes.
-- Component views:
-  - `Dashboard.jsx`: Pulls stats and video uploads using Axios concurrent calls (`Promise.all`).
-  - `Kanban.jsx`: Harnesses native HTML5 drag-and-drop (`onDragStart`, `onDrop`) to trigger API PATCH updates on task cards.
-  - `Converter.jsx`: Calculates estimated yields for campaign conversions.
+---
+
+## Phase 9: Key Frontend Interview Concepts & Implementations
+
+### 1. Multipart Form Uploads via Axios
+When sending file attachments (like avatar images, cover images, video files, or thumbnails) from React to an Express backend using Multer, standard JSON payloads will not work. We must use the browser's native **`FormData`** API:
+```javascript
+const formData = new FormData();
+formData.append("title", title);
+formData.append("videoFile", fileInputRef.files[0]); // Raw file stream
+
+await axios.post("/api/v1/videos", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+});
+```
+
+### 2. Native HTML5 Drag and Drop in React
+Instead of installing heavy drag-and-drop packages that add bloat to the bundle size, we can implement Kanban column migrations natively:
+1. Mark the elements as draggable: `<div draggable onDragStart={(e) => e.dataTransfer.setData("taskId", task._id)}>`.
+2. Allow drop targets to accept drops: `<div onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, "IN_PROGRESS")}>`.
+3. Read the ID on drop: `const id = e.dataTransfer.getData("taskId")` and trigger your API call.
+
+### 3. Concurrency Optimization (Promise.all)
+To render dashboards without blocking layouts or calling APIs sequentially (which creates a "waterfall" performance lag), run independent API calls concurrently:
+```javascript
+// Optimized concurrent load:
+const [stats, videos] = await Promise.all([
+    axios.get("/api/v1/dashboard/stats"),
+    axios.get("/api/v1/dashboard/videos")
+]);
+```
+This reduces the page's Time-To-Interactive (TTI) to the speed of the slowest single request, rather than the sum of all requests.
