@@ -12,10 +12,17 @@ function VideoPlayer() {
     const [likesCount, setLikesCount] = useState(0);
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [subscribersCount, setSubscribersCount] = useState(0);
+    const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const fetchData = async () => {
         try {
+            // Get currently logged-in user profile details
+            const userRes = await axios.get("/api/v1/users/current-user");
+            if (userRes.data.success) {
+                setCurrentUser(userRes.data.data);
+            }
+
             // Get video details (views will auto-increment by 1 in backend)
             const videoRes = await axios.get(`/api/v1/videos/${videoId}`);
             if (videoRes.data.success) {
@@ -35,7 +42,6 @@ function VideoPlayer() {
                     setSubscribersCount(subList.length);
                     
                     // Check if current user is inside this subscriber list
-                    // Since we don't have user session details locally in React state, we can query '/u' (channels we subscribed to) and match
                     const channelsRes = await axios.get("/api/v1/subscriptions/u");
                     if (channelsRes.data.success) {
                         const isSub = channelsRes.data.data.some(ch => ch._id === videoData.owner._id);
@@ -98,12 +104,12 @@ function VideoPlayer() {
             });
 
             if (res.data.success) {
-                // Prepend new comment with mock owner details to avoid re-fetch latency
+                // Prepend new comment with active user details to avoid re-fetch latency
                 const addedComment = {
                     ...res.data.data,
                     owner: {
-                        username: "You",
-                        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80"
+                        username: currentUser?.username || "You",
+                        avatar: currentUser?.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80"
                     }
                 };
                 setComments(prev => [addedComment, ...prev]);
