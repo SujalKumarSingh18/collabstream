@@ -272,3 +272,17 @@ const [stats, videos] = await Promise.all([
 ]);
 ```
 This reduces the page's Time-To-Interactive (TTI) to the speed of the slowest single request, rather than the sum of all requests.
+
+### 4. Advanced Theme Toggling with CSS Substring Attribute Selectors
+When working with utility-first frameworks like Tailwind CSS, overriding hardcoded hex colors dynamically (e.g. `bg-[#0c0a0f]`) during theme switches can be challenging. Escaped CSS characters (like `\[` and `\]`) can fail to parse across various legacy browsers or Node CSS build tools.
+
+To bypass this robustly, we use CSS **Attribute Substring Selectors** (`[class*="value"]`) to match Tailwind class strings on DOM elements:
+```css
+/* Selects any element whose class name contains "bg-[#0c0a0f]" */
+.light-theme [class*="bg-[#0c0a0f]"] {
+  background-color: #f3f4f6 !important;
+  color: #1f2937 !important;
+}
+```
+* **Interview Benefit:** This demonstrates deep knowledge of CSS selectors and represents an elegant way to implement dark/light modes on third-party libraries or utility-first structures without rewriting the class names inside JSX components.
+
