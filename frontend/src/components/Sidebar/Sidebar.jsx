@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Kanban, RefreshCw, Film } from "lucide-react";
+import { LayoutDashboard, Kanban, RefreshCw, Film, MessageSquare } from "lucide-react";
 
 function Sidebar() {
     const location = useLocation();
@@ -8,7 +8,9 @@ function Sidebar() {
     // Navigation links helper
     const navItems = [
         { name: "Dashboard", path: "/", icon: LayoutDashboard },
+        { name: "Videos Gallery", path: "/videos", icon: Film },
         { name: "Kanban Studio", path: "/kanban", icon: Kanban },
+        { name: "Community Hub", path: "/community", icon: MessageSquare },
         { name: "Ad-Spend Converter", path: "/converter", icon: RefreshCw }
     ];
 

@@ -229,9 +229,19 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 });
 
+/**
+ * Task: Get the currently logged-in user profile details.
+ */
+const getCurrentUser = asyncHandler(async (req, res) => {
+    return res
+        .status(200)
+        .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
+});
+
 export {
     registerUser,
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    getCurrentUser
 };
