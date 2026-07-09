@@ -64,14 +64,30 @@ import postRouter from "./routes/post.routes.js";
 import { errorHandler } from "./middlewares/error.middlewares.js";
 
 // ROUTES DECLARATION
+// Mount under both /api/v1 and /v1 to prevent path prefix issues during serverless rewrites
 app.use("/api/v1/users", userRouter);
+app.use("/v1/users", userRouter);
+
 app.use("/api/v1/tasks", taskRouter);
+app.use("/v1/tasks", taskRouter);
+
 app.use("/api/v1/dashboard", dashboardRouter);
+app.use("/v1/dashboard", dashboardRouter);
+
 app.use("/api/v1/videos", videoRouter);
+app.use("/v1/videos", videoRouter);
+
 app.use("/api/v1/comments", commentRouter);
+app.use("/v1/comments", commentRouter);
+
 app.use("/api/v1/likes", likeRouter);
+app.use("/v1/likes", likeRouter);
+
 app.use("/api/v1/subscriptions", subscriptionRouter);
+app.use("/v1/subscriptions", subscriptionRouter);
+
 app.use("/api/v1/posts", postRouter);
+app.use("/v1/posts", postRouter);
 
 // ERROR HANDLER MIDDLEWARE (Mounted last to catch exceptions from all routes)
 app.use(errorHandler);
