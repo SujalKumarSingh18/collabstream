@@ -1,24 +1,19 @@
 import multer from "multer";
+import os from "os";
 
 /**
- * Task: Configure Multer disk storage for local temp files.
- * 
- * TODO:
- * 1. Define storage using `multer.diskStorage()`.
- * 2. Set the destination function to save files temporarily in `./public/temp`.
- * 3. Set the filename function to save the file with its original name (`file.originalname`).
- * 4. Export the configured `upload` middleware.
+ * Task: Configure Multer storage to save temporary uploads.
+ * Security & Serverless: Uses os.tmpdir() instead of a hardcoded local path
+ * to support writeable directories in serverless environments (like Vercel /tmp).
  */
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        // --- HINT: cb(null, "./public/temp") ---
-        // Your code here...
-        cb(null, './public/temp');
+        // Use system temp directory (works locally on Windows/macOS and in production Vercel /tmp)
+        cb(null, os.tmpdir());
     },
     filename: function (req, file, cb) {
-        // --- HINT: cb(null, file.originalname) ---
-        // Your code here...
-        cb(null, file.originalname);
+        // Prepend timestamp to prevent name collisions
+        cb(null, `${Date.now()}-${file.originalname}`);
     }
 });
 
