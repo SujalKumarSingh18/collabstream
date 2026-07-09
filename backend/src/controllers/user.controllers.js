@@ -132,7 +132,8 @@ const loginUser = asyncHandler(async (req, res) => {
     // Options for secure HTTP-only cookies (protects against XSS attacks)
     const cookieOptions = {
         httpOnly: true,
-        secure: true
+        secure: true,
+        sameSite: "none"
     };
 
     // Remove sensitive fields before returning user details
@@ -169,7 +170,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 
     const cookieOptions = {
         httpOnly: true,
-        secure: true
+        secure: true,
+        sameSite: "none"
     };
 
     // Clear access and refresh token cookies from the browser
@@ -209,7 +211,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
         const cookieOptions = {
             httpOnly: true,
-            secure: true
+            secure: true,
+            sameSite: "none"
         };
 
         return res
