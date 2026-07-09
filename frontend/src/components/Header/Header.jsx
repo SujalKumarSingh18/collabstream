@@ -29,6 +29,7 @@ function Header() {
         try {
             await axios.post("/api/v1/users/logout");
             // Clear credentials and navigate to login
+            localStorage.removeItem("accessToken");
             navigate("/login");
         } catch (error) {
             console.error("Logout failed", error);

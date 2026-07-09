@@ -18,6 +18,17 @@ import axios from 'axios';
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
 axios.defaults.withCredentials = true;
 
+// Axios request interceptor to automatically attach JWT authorization headers if present
+axios.interceptors.request.use((config) => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>

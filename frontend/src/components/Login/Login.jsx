@@ -32,6 +32,8 @@ function Login() {
             const res = await axios.post("/api/v1/users/login", payload);
 
             if (res.data.success) {
+                // Save access token for header authorization fallback if third-party cookies are blocked
+                localStorage.setItem("accessToken", res.data.data.accessToken);
                 // Navigate to dashboard layout
                 navigate("/");
             }
