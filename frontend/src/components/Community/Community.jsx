@@ -16,8 +16,8 @@ function Community() {
                 const user = profileRes.data.data;
                 setCurrentUser(user);
 
-                // Fetch posts for this user
-                const postsRes = await axios.get(`/api/v1/posts/user/${user._id}`);
+                // Fetch global feed of posts from all creators
+                const postsRes = await axios.get("/api/v1/posts");
                 if (postsRes.data.success) {
                     setPosts(postsRes.data.data);
                 }
@@ -74,7 +74,7 @@ function Community() {
     return (
         <div className="max-w-3xl mx-auto space-y-6">
             <p className="text-gray-400 text-sm m-0">
-                Share text updates, announcements, or messages directly with your channel community.
+                Share text updates, announcements, or messages directly with the global CollabStream community.
             </p>
 
             {/* Create Post Block */}
@@ -117,44 +117,51 @@ function Community() {
                         No community updates published yet.
                     </div>
                 ) : (
-                    posts.map((post) => (
-                        <div
-                            key={post._id}
-                            className="bg-[#14121a] border border-[#201d2a] p-5 rounded-2xl space-y-4 hover:border-[#38334e] transition-all duration-200 group"
-                        >
-                            {/* Card Header info */}
-                            <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-3">
-                                    <img
-                                        src={currentUser?.avatar}
-                                        alt={currentUser?.username}
-                                        className="w-10 h-10 rounded-full object-cover bg-zinc-900 border border-[#2c2838]"
-                                    />
-                                    <div>
-                                        <span className="block text-sm font-bold text-white leading-tight">
-                                            {currentUser?.fullName}
-                                        </span>
-                                        <span className="text-[10px] text-gray-500 font-bold">
-                                            @{currentUser?.username} • {new Date(post.createdAt).toLocaleDateString()}
-                                        </span>
+                    posts.map((post) => {
+                        const author = post.owner || {};
+                        const isOwnPost = currentUser?._id === author._id;
+
+                        return (
+                            <div
+                                key={post._id}
+                                className="bg-[#14121a] border border-[#201d2a] p-5 rounded-2xl space-y-4 hover:border-[#38334e] transition-all duration-200 group"
+                            >
+                                {/* Card Header info */}
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-3">
+                                        <img
+                                            src={author.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80"}
+                                            alt={author.username || "Creator"}
+                                            className="w-10 h-10 rounded-full object-cover bg-zinc-900 border border-[#2c2838]"
+                                        />
+                                        <div>
+                                            <span className="block text-sm font-bold text-white leading-tight">
+                                                {author.fullName || "Creator"}
+                                            </span>
+                                            <span className="text-[10px] text-gray-500 font-bold">
+                                                @{author.username || "unknown"} • {new Date(post.createdAt).toLocaleDateString()}
+                                            </span>
+                                        </div>
                                     </div>
+
+                                    {/* Delete Post option (Only visible to the post owner) */}
+                                    {isOwnPost && (
+                                        <button
+                                            onClick={() => handleDeletePost(post._id)}
+                                            className="text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-pointer"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    )}
                                 </div>
 
-                                {/* Delete Post option */}
-                                <button
-                                    onClick={() => handleDeletePost(post._id)}
-                                    className="text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-pointer"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
+                                {/* Content */}
+                                <p className="text-sm text-gray-200 leading-relaxed m-0 break-words pl-1">
+                                    {post.content}
+                                </p>
                             </div>
-
-                            {/* Content */}
-                            <p className="text-sm text-gray-200 leading-relaxed m-0 break-words pl-1">
-                                {post.content}
-                            </p>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
         </div>

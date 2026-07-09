@@ -19,9 +19,11 @@ const createPost = asyncHandler(async (req, res) => {
         owner: req.user._id
     });
 
+    const populatedPost = await Post.findById(post._id).populate("owner", "username fullName avatar");
+
     return res
         .status(201)
-        .json(new ApiResponse(201, post, "Post created successfully"));
+        .json(new ApiResponse(201, populatedPost, "Post created successfully"));
 });
 
 /**
@@ -104,9 +106,23 @@ const deletePost = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {}, "Post deleted successfully"));
 });
 
+/**
+ * Task: Get all posts created by all users (Global Feed).
+ */
+const getAllPosts = asyncHandler(async (req, res) => {
+    const posts = await Post.find({})
+        .populate("owner", "username fullName avatar")
+        .sort({ createdAt: -1 });
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, posts, "All community posts retrieved successfully"));
+});
+
 export {
     createPost,
     getUserPosts,
     updatePost,
-    deletePost
+    deletePost,
+    getAllPosts
 };

@@ -4,6 +4,7 @@ import {
     getUserPosts,
     updatePost,
     deletePost,
+    getAllPosts,
 } from "../controllers/post.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
 
@@ -12,8 +13,8 @@ const router = Router();
 // Secure all post routes
 router.use(verifyJWT);
 
-// Route: Create a post
-router.route("/").post(createPost);
+// Route: Create a post / Get global post feed
+router.route("/").post(createPost).get(getAllPosts);
 
 // Route: Get user posts
 router.route("/user/:userId").get(getUserPosts);
