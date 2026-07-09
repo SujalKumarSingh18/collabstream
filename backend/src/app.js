@@ -15,31 +15,12 @@ const app = express();
  * 5. Configure cookie-parser middleware.
  */
 
-// 1. CORS Configuration - Control access from client domain dynamically
-const allowedOrigins = [
-    process.env.CORS_ORIGIN,
-    "http://localhost:5173",
-    "https://collabstream-frontend.vercel.app"
-].filter(Boolean);
-
+// 1. CORS Configuration - dynamically echo back the request origin to allow secure cross-origin requests
 app.use(
     cors({
         origin: function (origin, callback) {
-            // Allow server-to-server or postman requests (no origin)
-            if (!origin) return callback(null, true);
-
-            const isAllowed = allowedOrigins.some(allowed => {
-                const cleanAllowed = allowed.replace(/\/$/, "");
-                const cleanOrigin = origin.replace(/\/$/, "");
-                // Match exact domain or allow any Vercel deployment preview url for the project
-                return cleanAllowed === cleanOrigin || cleanOrigin.endsWith(".vercel.app");
-            });
-
-            if (isAllowed) {
-                return callback(null, true);
-            } else {
-                return callback(new Error(`Origin ${origin} blocked by CORS`));
-            }
+            // Echo back the requesting origin to allow any client (including localhost and Vercel deployments)
+            callback(null, true);
         },
         credentials: true,
     })
