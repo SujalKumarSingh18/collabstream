@@ -97,5 +97,5 @@ Designed and deployed schemas inside `/models`:
 ---
 
 ## 🚀 Deployed URLs
-* **Frontend Client**: `https://collabstream-frontend.vercel.app`
-* **Backend API**: `https://collabstream-backend.vercel.app`
+* **Frontend Client (Live Web App)**: [https://collabstream-frontend.vercel.app](https://collabstream-frontend.vercel.app)
+* **Backend API (REST Server)**: [https://collabstream-backend.vercel.app](https://collabstream-backend.vercel.app)
