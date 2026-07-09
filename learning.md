@@ -286,3 +286,24 @@ To bypass this robustly, we use CSS **Attribute Substring Selectors** (`[class*=
 ```
 * **Interview Benefit:** This demonstrates deep knowledge of CSS selectors and represents an elegant way to implement dark/light modes on third-party libraries or utility-first structures without rewriting the class names inside JSX components.
 
+---
+
+## Phase 10: Production Deployments, CORS & Session Cookie Management
+
+### 1. SPA Client-Side Routing Rewrites on Vercel
+When deploying a Single Page Application (SPA) using client-side routers (like React Router), reloading the page at a custom path (e.g. `/login`) makes the browser request `/login` directly from the hosting CDN, leading to a `404 Not Found` error.
+* **The Solution**: We create a `vercel.json` rewrite configuration inside `/frontend` directing all paths `/(.*)` back to `/index.html`, allowing React Router to intercept the URL and render client-side routes successfully.
+
+### 2. Dynamic CORS Origin Echoing
+Hardcoding a single `CORS_ORIGIN` string (e.g. your production frontend URL) locks down your backend, preventing it from accepting requests from localhost during testing, or from temporary Vercel preview deployment URLs.
+* **The Solution**: We write a dynamic CORS validation function in `app.js` that checks incoming origin request headers against allowed origins and dynamically echoes them back in the `Access-Control-Allow-Origin` response header, keeping credentials secure and development flexible.
+
+### 3. Cross-Origin Cookie Requirements (`SameSite=None; Secure`)
+By default, modern web browsers restrict cookies sent across different domains (e.g. from `collabstream-backend.vercel.app` to `collabstream-frontend.vercel.app`) to prevent Cross-Site Request Forgery (CSRF).
+* **The Solution**: To support secure HTTP-only cookies in a decoupled environment, we must configure:
+  1. **`httpOnly: true`** (blocks client-side JavaScript access).
+  2. **`secure: true`** (forces transfer exclusively over HTTPS).
+  3. **`sameSite: "none"`** (tells the browser the cookie is safe to be sent across third-party/cross-subdomain contexts).
+* **Interview Benefit**: Deep understanding of cross-domain authentication security, cookie attributes, and browser security policies.
+
+
