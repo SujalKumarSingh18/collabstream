@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Heart, UserPlus, UserCheck, User, MessageSquare, Trash2, Calendar, Eye } from "lucide-react";
 
 function VideoPlayer() {
     const { videoId } = useParams();
+    const navigate = useNavigate();
     const [video, setVideo] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
@@ -132,6 +133,20 @@ function VideoPlayer() {
         }
     };
 
+    // Handle deleting a video
+    const handleDeleteVideo = async () => {
+        if (!window.confirm("Are you sure you want to delete this video? This action cannot be undone.")) return;
+        try {
+            const res = await axios.delete(`/api/v1/videos/${videoId}`);
+            if (res.data.success) {
+                navigate("/");
+            }
+        } catch (error) {
+            console.error("Error deleting video:", error);
+            alert("Failed to delete video. Please try again.");
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -164,22 +179,35 @@ function VideoPlayer() {
 
                 {/* Video metadata description block */}
                 <div className="bg-[#14121a] border border-[#201d2a] p-6 rounded-2xl space-y-4">
-                    <div className="flex justify-between items-start">
-                        <h1 className="text-xl font-black text-white m-0 tracking-tight leading-snug">
+                    <div className="flex justify-between items-start gap-4">
+                        <h1 className="text-xl font-black text-white m-0 tracking-tight leading-snug break-words flex-1">
                             {video.title}
                         </h1>
-                        {/* Like Toggle */}
-                        <button
-                            onClick={handleLikeToggle}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition-all duration-150 cursor-pointer ${
-                                isLiked
-                                    ? "bg-rose-500/10 border-rose-500/30 text-rose-400"
-                                    : "bg-[#1c1924] border-[#2c2838] text-gray-400 hover:text-gray-200"
-                            }`}
-                        >
-                            <Heart className={`w-4 h-4 ${isLiked ? "fill-rose-400" : ""}`} />
-                            <span>Like</span>
-                        </button>
+                        <div className="flex items-center gap-2 shrink-0">
+                            {/* Delete Video Option (Owner only) */}
+                            {currentUser?._id === video.owner._id && (
+                                <button
+                                    onClick={handleDeleteVideo}
+                                    className="flex items-center gap-2 bg-[#1c1924] border border-red-500/30 hover:bg-red-500/10 text-red-400 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    <span>Delete</span>
+                                </button>
+                            )}
+
+                            {/* Like Toggle */}
+                            <button
+                                onClick={handleLikeToggle}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition-all duration-150 cursor-pointer ${
+                                    isLiked
+                                        ? "bg-rose-500/10 border-rose-500/30 text-rose-400"
+                                        : "bg-[#1c1924] border-[#2c2838] text-gray-400 hover:text-gray-200"
+                                }`}
+                            >
+                                <Heart className={`w-4 h-4 ${isLiked ? "fill-rose-400" : ""}`} />
+                                <span>Like</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-4 text-xs text-gray-500 font-semibold">
